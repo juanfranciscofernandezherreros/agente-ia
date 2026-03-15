@@ -3,7 +3,9 @@ test_agent.py - Tests para las funciones del agente
 """
 from unittest.mock import patch, MagicMock
 
-from agent import batch_chat, main, DEFAULT_QUESTIONS
+from langchain_core.messages import AIMessage, HumanMessage
+
+from agent import batch_chat, create_agent, main, DEFAULT_QUESTIONS
 
 
 # ---- Tests para batch_chat ----
@@ -77,6 +79,28 @@ class TestBatchChat:
         assert mock_agent.invoke.call_count == 3
 
     @patch("agent.create_agent")
+    def test_batch_chat_passes_chat_history_between_questions(self, mock_create_agent):
+        """Verifica que batch_chat envía el historial acumulado en cada invocación."""
+        mock_agent = MagicMock()
+        captured_histories = []
+
+        def fake_invoke(payload):
+            captured_histories.append(list(payload["chat_history"]))
+            return {"output": "respuesta"}
+
+        mock_agent.invoke.side_effect = fake_invoke
+        mock_create_agent.return_value = mock_agent
+
+        batch_chat(["pregunta1", "pregunta2"])
+
+        assert len(captured_histories[0]) == 0
+        assert len(captured_histories[1]) == 2
+        assert isinstance(captured_histories[1][0], HumanMessage)
+        assert isinstance(captured_histories[1][1], AIMessage)
+        assert captured_histories[1][0].content == "pregunta1"
+        assert captured_histories[1][1].content == "respuesta"
+
+    @patch("agent.create_agent")
     def test_batch_chat_output_no_interactive_prompt(self, mock_create_agent, capsys):
         """Verifica que batch_chat no usa el prompt interactivo 'Tú:'."""
         mock_agent = MagicMock()
@@ -137,3 +161,22 @@ class TestCLIQuestionsFlag:
 
         mock_chat.assert_called_once()
         mock_batch_chat.assert_not_called()
+
+
+class TestAgentCreation:
+    """Tests para la creación del agente."""
+
+    @patch("agent.AgentExecutor")
+    @patch("agent.create_openai_tools_agent")
+    @patch("agent.ChatOpenAI")
+    def test_create_agent_without_deprecated_memory(
+        self, mock_chat_openai, mock_create_openai_tools_agent, mock_agent_executor
+    ):
+        mock_chat_openai.return_value = MagicMock()
+        mock_create_openai_tools_agent.return_value = MagicMock()
+        mock_agent_executor.return_value = MagicMock()
+
+        create_agent()
+
+        _, kwargs = mock_agent_executor.call_args
+        assert "memory" not in kwargs

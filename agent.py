@@ -6,8 +6,8 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_classic.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_classic.memory import ConversationBufferMemory
 
 from tools import all_tools
 
@@ -48,16 +48,10 @@ IMPORTANTE: Piensa paso a paso antes de actuar.""",
     # 3. Crear el agente
     agent = create_openai_tools_agent(llm, all_tools, prompt)
 
-    # 4. Configurar memoria para conversación
-    memory = ConversationBufferMemory(
-        memory_key="chat_history", return_messages=True
-    )
-
-    # 5. Crear el executor
+    # 4. Crear el executor
     agent_executor = AgentExecutor(
         agent=agent,
         tools=all_tools,
-        memory=memory,
         verbose=True,  # Ver el razonamiento del agente
         handle_parsing_errors=True,
         max_iterations=5,  # Límite de pasos para evitar loops
@@ -72,6 +66,7 @@ def chat():
     print("Puedo buscar en internet, hacer cálculos y ejecutar código Python.\n")
 
     agent = create_agent()
+    chat_history = []
 
     while True:
         user_input = input("Tú: ").strip()
@@ -84,8 +79,12 @@ def chat():
             continue
 
         try:
-            response = agent.invoke({"input": user_input})
-            print(f"\n🤖 Agente: {response['output']}\n")
+            response = agent.invoke({"input": user_input, "chat_history": chat_history})
+            answer = response["output"]
+            print(f"\n🤖 Agente: {answer}\n")
+            chat_history.extend(
+                [HumanMessage(content=user_input), AIMessage(content=answer)]
+            )
         except Exception as e:
             print(f"❌ Error: {str(e)}\n")
 
@@ -100,6 +99,7 @@ def batch_chat(questions):
         Lista de diccionarios con las preguntas y sus respuestas.
     """
     agent = create_agent()
+    chat_history = []
     results = []
     valid_questions = [q.strip() for q in questions if q.strip()]
 
@@ -110,10 +110,13 @@ def batch_chat(questions):
         print(f"📝 {question}")
 
         try:
-            response = agent.invoke({"input": question})
+            response = agent.invoke({"input": question, "chat_history": chat_history})
             answer = response["output"]
             print(f"\n🤖 Agente: {answer}\n")
             results.append({"question": question, "answer": answer})
+            chat_history.extend(
+                [HumanMessage(content=question), AIMessage(content=answer)]
+            )
         except Exception as e:
             error_msg = str(e)
             print(f"❌ Error: {error_msg}\n")
