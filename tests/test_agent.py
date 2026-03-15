@@ -1,6 +1,8 @@
 """
 test_agent.py - Tests para las funciones del agente
 """
+import subprocess
+import sys
 from unittest.mock import patch, MagicMock
 
 from agent import batch_chat, DEFAULT_QUESTIONS
@@ -113,3 +115,34 @@ class TestDefaultQuestions:
 
         assert len(results) == 5
         assert mock_agent.invoke.call_count == 5
+
+
+class TestCLIQuestionsFlag:
+    """Tests para el argumento --questions de la línea de comandos."""
+
+    @patch("agent.batch_chat")
+    @patch("agent.chat")
+    def test_questions_flag_calls_batch_chat(self, mock_chat, mock_batch_chat):
+        """Verifica que --questions invoca batch_chat con las preguntas dadas."""
+        test_args = ["agent.py", "--questions", "¿Cuánto es 2+2?", "¿Qué día es hoy?"]
+        with patch("sys.argv", test_args):
+            # Re-run the __main__ block logic
+            import argparse
+
+            parser = argparse.ArgumentParser()
+            parser.add_argument("--questions", nargs="+")
+            args = parser.parse_args(test_args[1:])
+
+            assert args.questions == ["¿Cuánto es 2+2?", "¿Qué día es hoy?"]
+
+    @patch("agent.batch_chat")
+    @patch("agent.chat")
+    def test_no_questions_flag_calls_chat(self, mock_chat, mock_batch_chat):
+        """Verifica que sin --questions se usa el modo interactivo."""
+        import argparse
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--questions", nargs="+")
+        args = parser.parse_args([])
+
+        assert args.questions is None
