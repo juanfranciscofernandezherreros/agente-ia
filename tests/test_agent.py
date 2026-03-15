@@ -75,3 +75,17 @@ class TestBatchChat:
         # create_agent se llama una sola vez para todas las preguntas
         mock_create_agent.assert_called_once()
         assert mock_agent.invoke.call_count == 3
+
+    @patch("agent.create_agent")
+    def test_batch_chat_output_no_interactive_prompt(self, mock_create_agent, capsys):
+        """Verifica que batch_chat no usa el prompt interactivo 'Tú:'."""
+        mock_agent = MagicMock()
+        mock_agent.invoke.return_value = {"output": "respuesta"}
+        mock_create_agent.return_value = mock_agent
+
+        questions = ["¿Cuánto es 2+2?"]
+        batch_chat(questions)
+
+        captured = capsys.readouterr()
+        assert "Tú:" not in captured.out
+        assert "📝 ¿Cuánto es 2+2?" in captured.out

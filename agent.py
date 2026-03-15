@@ -107,7 +107,7 @@ def batch_chat(questions):
 
     for i, question in enumerate(valid_questions, 1):
         print(f"--- Pregunta {i}/{len(valid_questions)} ---")
-        print(f"Tú: {question}")
+        print(f"📝 {question}")
 
         try:
             response = agent.invoke({"input": question})
