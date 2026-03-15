@@ -11,7 +11,10 @@ def main(argv=None):
     questions = argv if argv is not None else sys.argv[1:]
 
     if not questions:
-        print("Usa: python ask_agent.py 'pregunta1' 'pregunta2' ...")
+        print(
+            "Usa: python ask_agent.py 'pregunta1' 'pregunta2' ...",
+            file=sys.stderr,
+        )
         return 1
 
     batch_chat(questions)

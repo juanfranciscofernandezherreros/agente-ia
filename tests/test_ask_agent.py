@@ -22,5 +22,5 @@ class TestAskAgentScript:
 
         captured = capsys.readouterr()
         assert exit_code == 1
-        assert "Usa: python ask_agent.py" in captured.out
+        assert "Usa: python ask_agent.py" in captured.err
         mock_batch_chat.assert_not_called()
