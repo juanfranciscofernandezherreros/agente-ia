@@ -16,7 +16,8 @@ agente-ia/
 ├── tools.py          # Herramientas custom
 ├── requirements.txt  # Dependencias
 └── tests/
-    └── test_tools.py # Tests unitarios
+    ├── test_agent.py # Tests para el agente
+    └── test_tools.py # Tests para herramientas
 ```
 
 ## Setup
@@ -41,11 +42,13 @@ cp .env.example .env
 
 ## Uso
 
+### Modo interactivo
+
 ```bash
 python agent.py
 ```
 
-### Ejemplo de Conversación
+#### Ejemplo de Conversación
 
 ```
 🤖 Agente de IA iniciado. Escribe 'salir' para terminar.
@@ -57,6 +60,48 @@ Tú: ¿Cuánto es la raíz cuadrada de 144?
 Tú: Genera los primeros 10 números de Fibonacci
 🤖 Agente: Los primeros 10 números de Fibonacci son:
 **0, 1, 1, 2, 3, 5, 8, 13, 21, 34**
+```
+
+### Modo batch (lista de preguntas)
+
+Pasa una lista de preguntas con `--questions` y el agente las responderá de forma seguida sin necesidad de interacción:
+
+```bash
+python agent.py --questions "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Cuál es la raíz cuadrada de 144?"
+```
+
+#### Ejemplo de salida
+
+```
+🤖 Procesando lista de preguntas...
+
+--- Pregunta 1/3 ---
+Tú: ¿Cuánto es 2+2?
+🤖 Agente: El resultado de 2+2 es **4**
+
+--- Pregunta 2/3 ---
+Tú: ¿Qué día es hoy?
+🤖 Agente: Hoy es 15/03/2026
+
+--- Pregunta 3/3 ---
+Tú: ¿Cuál es la raíz cuadrada de 144?
+🤖 Agente: La raíz cuadrada de 144 es **12.0**
+
+✅ Todas las preguntas han sido procesadas.
+```
+
+También se puede usar `batch_chat()` de forma programática:
+
+```python
+from agent import batch_chat
+
+preguntas = [
+    "¿Cuánto es 2+2?",
+    "¿Qué día es hoy?",
+    "Genera los primeros 5 números de Fibonacci",
+]
+resultados = batch_chat(preguntas)
+# resultados es una lista de {"question": ..., "answer": ...}
 ```
 
 ## Tests
