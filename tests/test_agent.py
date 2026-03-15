@@ -3,7 +3,7 @@ test_agent.py - Tests para las funciones del agente
 """
 from unittest.mock import patch, MagicMock
 
-from agent import batch_chat
+from agent import batch_chat, DEFAULT_QUESTIONS
 
 
 # ---- Tests para batch_chat ----
@@ -89,3 +89,27 @@ class TestBatchChat:
         captured = capsys.readouterr()
         assert "Tú:" not in captured.out
         assert "📝 ¿Cuánto es 2+2?" in captured.out
+
+
+class TestDefaultQuestions:
+    """Tests para las preguntas por defecto."""
+
+    def test_default_questions_has_five(self):
+        assert len(DEFAULT_QUESTIONS) == 5
+
+    def test_default_questions_are_non_empty_strings(self):
+        for q in DEFAULT_QUESTIONS:
+            assert isinstance(q, str)
+            assert q.strip() != ""
+
+    @patch("agent.create_agent")
+    def test_batch_chat_with_default_questions(self, mock_create_agent):
+        """Verifica que batch_chat procesa las 5 preguntas por defecto."""
+        mock_agent = MagicMock()
+        mock_agent.invoke.return_value = {"output": "respuesta"}
+        mock_create_agent.return_value = mock_agent
+
+        results = batch_chat(DEFAULT_QUESTIONS)
+
+        assert len(results) == 5
+        assert mock_agent.invoke.call_count == 5

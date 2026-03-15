@@ -123,16 +123,23 @@ def batch_chat(questions):
     return results
 
 
+DEFAULT_QUESTIONS = [
+    "¿Qué fecha y hora es ahora mismo?",
+    "¿Cuánto es 125 * 37 + 99?",
+    "Busca en internet cuál es la última versión de Python",
+    "Escribe un programa en Python que calcule los primeros 10 números de Fibonacci",
+    "¿Cuál es la raíz cuadrada de 2025?",
+]
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Agente de IA con herramientas")
     parser.add_argument(
-        "--questions",
-        nargs="+",
-        help="Lista de preguntas para responder de forma seguida",
+        "questions",
+        nargs="*",
+        help="Preguntas para responder de forma secuencial (si no se proporcionan, se usan 5 por defecto)",
     )
     args = parser.parse_args()
 
-    if args.questions:
-        batch_chat(args.questions)
-    else:
-        chat()
+    questions = args.questions if args.questions else DEFAULT_QUESTIONS
+    batch_chat(questions)
