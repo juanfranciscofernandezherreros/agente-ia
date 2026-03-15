@@ -101,15 +101,12 @@ def batch_chat(questions):
     """
     agent = create_agent()
     results = []
+    valid_questions = [q.strip() for q in questions if q.strip()]
 
     print("🤖 Procesando lista de preguntas...\n")
 
-    for i, question in enumerate(questions, 1):
-        question = question.strip()
-        if not question:
-            continue
-
-        print(f"--- Pregunta {i}/{len(questions)} ---")
+    for i, question in enumerate(valid_questions, 1):
+        print(f"--- Pregunta {i}/{len(valid_questions)} ---")
         print(f"Tú: {question}")
 
         try:
