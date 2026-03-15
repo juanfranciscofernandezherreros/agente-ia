@@ -3,7 +3,7 @@ test_agent.py - Tests para las funciones del agente
 """
 from unittest.mock import patch, MagicMock
 
-from agent import batch_chat, DEFAULT_QUESTIONS
+from agent import batch_chat, main, DEFAULT_QUESTIONS
 
 
 # ---- Tests para batch_chat ----
@@ -113,3 +113,27 @@ class TestDefaultQuestions:
 
         assert len(results) == 5
         assert mock_agent.invoke.call_count == 5
+
+
+class TestCLIQuestionsFlag:
+    """Tests para el argumento --questions de la línea de comandos."""
+
+    @patch("agent.batch_chat")
+    @patch("agent.chat")
+    def test_questions_flag_calls_batch_chat(self, mock_chat, mock_batch_chat):
+        """Verifica que --questions invoca batch_chat con las preguntas dadas."""
+        main(["--questions", "¿Cuánto es 2+2?", "¿Qué día es hoy?"])
+
+        mock_batch_chat.assert_called_once_with(
+            ["¿Cuánto es 2+2?", "¿Qué día es hoy?"]
+        )
+        mock_chat.assert_not_called()
+
+    @patch("agent.batch_chat")
+    @patch("agent.chat")
+    def test_no_questions_flag_calls_chat(self, mock_chat, mock_batch_chat):
+        """Verifica que sin --questions se usa el modo interactivo."""
+        main([])
+
+        mock_chat.assert_called_once()
+        mock_batch_chat.assert_not_called()

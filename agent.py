@@ -132,14 +132,21 @@ DEFAULT_QUESTIONS = [
 ]
 
 
-if __name__ == "__main__":
+def main(argv=None):
+    """Punto de entrada principal del agente."""
     parser = argparse.ArgumentParser(description="Agente de IA con herramientas")
     parser.add_argument(
-        "questions",
-        nargs="*",
-        help="Preguntas para responder de forma secuencial (si no se proporcionan, se usan 5 por defecto)",
+        "--questions",
+        nargs="+",
+        help="Preguntas a procesar secuencialmente",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    questions = args.questions if args.questions else DEFAULT_QUESTIONS
-    batch_chat(questions)
+    if args.questions:
+        batch_chat(args.questions)
+    else:
+        chat()
+
+
+if __name__ == "__main__":
+    main()
