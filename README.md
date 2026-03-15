@@ -70,6 +70,12 @@ Pasa una lista de preguntas con `--questions` y el agente las responderá de for
 python agent.py --questions "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Cuál es la raíz cuadrada de 144?"
 ```
 
+También puedes usar el script `ask_agent.py` pasando las preguntas directamente como argumentos posicionales:
+
+```bash
+python ask_agent.py "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Cuál es la raíz cuadrada de 144?"
+```
+
 #### Ejemplo de salida
 
 ```
