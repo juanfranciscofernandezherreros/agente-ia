@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 # Configurar API key
 cp .env.example .env
-# Editar .env con tu API key de OpenAI
+# Editar .env con tu API key de Gemini
 ```
 
 ## Uso

@@ -3,10 +3,10 @@ agent.py - Tu primer agente de IA
 """
 import os
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.memory import ConversationBufferMemory
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
+from langchain_classic.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_classic.memory import ConversationBufferMemory
 
 from tools import all_tools
 
@@ -17,8 +17,8 @@ def create_agent():
     """Crea y configura el agente"""
 
     # 1. Configurar el LLM
-    llm = ChatOpenAI(
-        model="gpt-4o-mini",  # Buena relación calidad/precio
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.0-flash",  # Buena relación calidad/precio
         temperature=0,  # Respuestas consistentes
     )
 
@@ -45,7 +45,7 @@ IMPORTANTE: Piensa paso a paso antes de actuar.""",
     )
 
     # 3. Crear el agente
-    agent = create_openai_tools_agent(llm, all_tools, prompt)
+    agent = create_tool_calling_agent(llm, all_tools, prompt)
 
     # 4. Configurar memoria para conversación
     memory = ConversationBufferMemory(
