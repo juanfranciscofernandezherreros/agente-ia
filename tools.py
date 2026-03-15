@@ -1,7 +1,7 @@
 """
 tools.py - Herramientas que el agente puede usar
 """
-from langchain.tools import tool
+from langchain_core.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
 import math
 
