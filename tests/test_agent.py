@@ -180,3 +180,5 @@ class TestAgentCreation:
 
         _, kwargs = mock_agent_executor.call_args
         assert "memory" not in kwargs
+        assert kwargs["max_iterations"] == 3
+        assert kwargs["early_stopping_method"] == "generate"

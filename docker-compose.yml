@@ -1,0 +1,11 @@
+services:
+  agente-ia:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    stdin_open: true
+    tty: true
+    command: python agent.py
