@@ -1,127 +1,129 @@
 # agente-ia
 
-Tu primer agente de IA en 30 minutos. Un agente conversacional que puede:
+Agente conversacional en Python con LangChain + OpenAI, pensado para aprender y ejecutar casos reales de forma simple.
 
-- 🔍 Buscar información en internet
-- 🔢 Hacer cálculos matemáticos
-- 🐍 Ejecutar código Python
-- 🧠 Decidir qué herramienta usar
+## ¿Qué hace este proyecto?
 
-## Estructura del Proyecto
+- 🔍 Busca información en internet (`DuckDuckGo`)
+- 🔢 Resuelve cálculos matemáticos
+- 🐍 Ejecuta código Python limitado
+- 🧠 Selecciona automáticamente la herramienta adecuada según la pregunta
+- 📦 Incluye ejecución local y con Docker
 
-```
+## Estructura del proyecto
+
+```text
 agente-ia/
-├── .env.example      # Plantilla de API keys
-├── agent.py          # Código principal del agente
-├── tools.py          # Herramientas custom
-├── requirements.txt  # Dependencias
+├── .env.example
+├── agent.py
+├── ask_agent.py
+├── tools.py
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
 └── tests/
-    ├── test_agent.py # Tests para el agente
-    └── test_tools.py # Tests para herramientas
 ```
 
-## Setup
+## Requisitos
+
+- Python 3.10+ (local)
+- Clave de OpenAI (`OPENAI_API_KEY`)
+- Docker (opcional, para ejecución containerizada)
+
+## Configuración local (quickstart)
 
 ```bash
-# Clonar el repositorio
 git clone https://github.com/juanfranciscofernandezherreros/agente-ia.git
 cd agente-ia
 
-# Crear entorno virtual
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
 
-# Instalar dependencias
 pip install -r requirements.txt
-
-# Configurar API key
 cp .env.example .env
-# Editar .env con tu API key de OpenAI
+# Edita .env y define OPENAI_API_KEY
 ```
 
 ## Uso
 
-### Modo interactivo
+### 1) Modo interactivo
 
 ```bash
 python agent.py
 ```
 
-#### Ejemplo de Conversación
-
-```
-🤖 Agente de IA iniciado. Escribe 'salir' para terminar.
-Puedo buscar en internet, hacer cálculos y ejecutar código Python.
-
-Tú: ¿Cuánto es la raíz cuadrada de 144?
-🤖 Agente: La raíz cuadrada de 144 es **12.0**
-
-Tú: Genera los primeros 10 números de Fibonacci
-🤖 Agente: Los primeros 10 números de Fibonacci son:
-**0, 1, 1, 2, 3, 5, 8, 13, 21, 34**
-```
-
-### Modo batch (lista de preguntas)
-
-Pasa una lista de preguntas con `--questions` y el agente las responderá de forma seguida sin necesidad de interacción:
+### 2) Modo batch con `agent.py`
 
 ```bash
-python agent.py --questions "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Cuál es la raíz cuadrada de 144?"
+python agent.py --questions "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Raíz cuadrada de 144?"
 ```
 
-También puedes usar el script `ask_agent.py` pasando las preguntas directamente como argumentos posicionales:
+### 3) Modo batch con `ask_agent.py`
 
 ```bash
-python ask_agent.py "¿Cuánto es 2+2?" "¿Qué día es hoy?" "¿Cuál es la raíz cuadrada de 144?"
+python ask_agent.py "¿Cuánto es 2+2?" "¿Qué día es hoy?"
 ```
 
-#### Ejemplo de salida
-
-```
-🤖 Procesando lista de preguntas...
-
---- Pregunta 1/3 ---
-Tú: ¿Cuánto es 2+2?
-🤖 Agente: El resultado de 2+2 es **4**
-
---- Pregunta 2/3 ---
-Tú: ¿Qué día es hoy?
-🤖 Agente: Hoy es 15/03/2026
-
---- Pregunta 3/3 ---
-Tú: ¿Cuál es la raíz cuadrada de 144?
-🤖 Agente: La raíz cuadrada de 144 es **12.0**
-
-✅ Todas las preguntas han sido procesadas.
-```
-
-También se puede usar `batch_chat()` de forma programática:
+### 4) Uso programático
 
 ```python
 from agent import batch_chat
 
-preguntas = [
-    "¿Cuánto es 2+2?",
-    "¿Qué día es hoy?",
-    "Genera los primeros 5 números de Fibonacci",
-]
-resultados = batch_chat(preguntas)
-# resultados es una lista de {"question": ..., "answer": ...}
+resultados = batch_chat(
+    [
+        "¿Cuánto es 2+2?",
+        "¿Qué fecha y hora es ahora?",
+        "Genera los primeros 5 números de Fibonacci",
+    ]
+)
 ```
 
-## Tests
+## Docker
+
+> El contenedor lee la API key desde `.env`.
+
+### Construir imagen
 
 ```bash
-pip install pytest
-pytest tests/ -v
+docker build -t agente-ia .
 ```
 
-## Herramientas Disponibles
+### Ejecutar en modo interactivo
+
+```bash
+docker run --rm -it --env-file .env agente-ia
+```
+
+### Ejecutar en modo batch
+
+```bash
+docker run --rm --env-file .env agente-ia \
+  python agent.py --questions "¿Cuánto es 2+2?" "¿Qué hora es?"
+```
+
+### Con Docker Compose
+
+```bash
+docker compose run --rm agente-ia
+```
+
+## Testing
+
+```bash
+python -m pytest -q
+```
+
+## Herramientas disponibles
 
 | Herramienta | Descripción |
 |---|---|
 | `search_web` | Busca información en internet usando DuckDuckGo |
-| `calculator` | Realiza cálculos matemáticos (suma, resta, raíces, trigonometría) |
-| `run_python` | Ejecuta código Python en un entorno restringido |
-| `get_current_datetime` | Obtiene la fecha y hora actual |
+| `calculator` | Calcula expresiones matemáticas (`+`, `-`, `*`, `/`, `sqrt`, etc.) |
+| `run_python` | Ejecuta código Python en entorno restringido |
+| `get_current_datetime` | Devuelve fecha y hora actual |
+
+## Notas de seguridad
+
+- `calculator` y `run_python` usan ejecución restringida, pero no sustituyen un sandbox de producción.
+- Para uso productivo, se recomienda aislamiento adicional (contenedores, límites de recursos y controles de red).
