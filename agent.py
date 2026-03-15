@@ -126,13 +126,10 @@ def batch_chat(questions):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Agente de IA con herramientas")
     parser.add_argument(
-        "--questions",
+        "questions",
         nargs="+",
-        help="Lista de preguntas para responder de forma seguida",
+        help="Preguntas para responder de forma secuencial",
     )
     args = parser.parse_args()
 
-    if args.questions:
-        batch_chat(args.questions)
-    else:
-        chat()
+    batch_chat(args.questions)
