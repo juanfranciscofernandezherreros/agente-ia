@@ -43,6 +43,8 @@ def calculator(expression: str) -> str:
             "abs": abs,
             "round": round,
         }
+        # SEGURIDAD: eval() con builtins restringidos. No usar en producción
+        # sin sandbox adicional (Docker, E2B, etc.)
         result = eval(expression, {"__builtins__": {}}, allowed_names)
         return f"Resultado: {result}"
     except Exception as e:
@@ -60,7 +62,8 @@ def run_python(code: str) -> str:
         code: Código Python a ejecutar
     """
     try:
-        # Entorno restringido para seguridad
+        # SEGURIDAD: exec() con builtins restringidos. No usar en producción
+        # sin sandbox adicional (Docker, E2B, etc.)
         local_vars = {}
         exec(
             code,
