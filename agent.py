@@ -35,6 +35,8 @@ REGLAS:
 - Si no necesitas herramientas, responde directamente
 - Para cálculos, usa la calculadora
 - Para información actual (precios, noticias, datos), busca en internet
+- No repitas búsquedas web casi iguales para la misma pregunta
+- Usa como máximo 2 búsquedas web por pregunta antes de responder
 - Sé conciso pero útil
 
 IMPORTANTE: Piensa paso a paso antes de actuar.""",
@@ -54,7 +56,8 @@ IMPORTANTE: Piensa paso a paso antes de actuar.""",
         tools=all_tools,
         verbose=True,  # Ver el razonamiento del agente
         handle_parsing_errors=True,
-        max_iterations=5,  # Límite de pasos para evitar loops
+        max_iterations=3,  # Límite de pasos para evitar loops
+        early_stopping_method="generate",
     )
 
     return agent_executor
