@@ -54,7 +54,7 @@ graph LR
     subgraph LangChain
         LC1[langchain_openai\nChatOpenAI]
         LC2[langchain_classic.agents\nAgentExecutor\ncreate_openai_tools_agent]
-        LC3[langchain_core.prompts\nChatPromptTemplate]
+        LC3[langchain_core.prompts\nChatPromptTemplate\nMessagesPlaceholder]
         LC4[langchain_core.messages\nHumanMessage / AIMessage]
         LC5[langchain_core.tools\n@tool]
         LC6[langchain_community.tools\nDuckDuckGoSearchRun]
@@ -63,11 +63,13 @@ graph LR
     subgraph Stdlib
         PY1[math]
         PY2[datetime]
-        PY3[argparse / os / sys]
+        PY3[argparse / os]
         PY4[python-dotenv]
+        PY5[sys]
     end
 
     AS -->|from agent import batch_chat| AG
+    AS --> PY5
     AG --> TO
     AG --> LC1
     AG --> LC2
@@ -149,7 +151,7 @@ Lógica de decisión al ejecutar `python agent.py`.
 ```mermaid
 flowchart TD
     Start([Inicio: python agent.py]) --> Parse[Parsear args con argparse]
-    Parse --> HasQ{¿args.questions\nestá definido?}
+    Parse --> HasQ{"¿args.questions\nestá definido?"}
 
     HasQ -- Sí --> Batch[batch_chat(questions)]
     HasQ -- No --> Interactive[chat() modo interactivo]
@@ -157,8 +159,10 @@ flowchart TD
     Batch --> Loop1[Procesa cada pregunta\ncon historial compartido]
     Loop1 --> Done1([Fin])
 
-    Interactive --> Loop2{Espera input\ndel usuario}
-    Loop2 --> Salir{¿'salir'/'exit'/'quit'?}
+    Interactive --> Loop2[Espera input\ndel usuario]
+    Loop2 --> EmptyQ{¿Input vacío?}
+    EmptyQ -- Sí --> Loop2
+    EmptyQ -- No --> Salir{"¿salir / exit / quit?"}
     Salir -- Sí --> Done2([Fin])
     Salir -- No --> Invoke[agent.invoke]
     Invoke --> Print[Muestra respuesta]
