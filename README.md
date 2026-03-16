@@ -21,7 +21,71 @@ agente-ia/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
+├── docs/
+│   └── diagrams.md   ← diagramas del proyecto
 └── tests/
+```
+
+## Diagramas
+
+El archivo [`docs/diagrams.md`](docs/diagrams.md) contiene el análisis visual completo del proyecto (8 diagramas Mermaid).
+
+### Visión general del sistema
+
+```mermaid
+graph TB
+    subgraph Usuario
+        U1[👤 Usuario CLI]
+        U2[🐳 Docker / Compose]
+        U3[🐍 Código Python externo]
+    end
+
+    subgraph agente-ia
+        E1[agent.py\nchat / batch_chat / main]
+        E2[ask_agent.py\nmain]
+        E3[tools.py\nherramientas]
+    end
+
+    subgraph Servicios externos
+        S1[🤖 OpenAI API\ngpt-4o-mini]
+        S2[🌐 DuckDuckGo\nbúsqueda web]
+    end
+
+    U1 -->|python agent.py| E1
+    U1 -->|python ask_agent.py| E2
+    U2 -->|docker run| E1
+    U3 -->|from agent import batch_chat| E1
+    E2 --> E1
+    E1 --> E3
+    E1 -->|LangChain / ChatOpenAI| S1
+    E3 -->|DuckDuckGoSearchRun| S2
+```
+
+### Flujo de una pregunta
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Chat as chat() [agent.py]
+    participant Executor as AgentExecutor [LangChain]
+    participant LLM as ChatOpenAI [OpenAI API]
+    participant Tool as Herramienta [tools.py]
+
+    Usuario->>Chat: escribe pregunta
+    Chat->>Executor: invoke({input, chat_history})
+    Executor->>LLM: genera plan / razonamiento
+    LLM-->>Executor: devuelve tool_call o texto final
+
+    alt Se necesita herramienta
+        Executor->>Tool: llama a la herramienta seleccionada
+        Tool-->>Executor: devuelve resultado
+        Executor->>LLM: añade resultado al contexto
+        LLM-->>Executor: respuesta final
+    end
+
+    Executor-->>Chat: {"output": "respuesta"}
+    Chat-->>Usuario: muestra 🤖 respuesta
+    Chat->>Chat: actualiza chat_history
 ```
 
 ## Requisitos
